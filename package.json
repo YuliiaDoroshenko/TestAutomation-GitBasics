@@ -1,0 +1,22 @@
+{
+  "name": "testautomation-gitbasics",
+  "version": "1.0.0",
+  "description": "QA 14/01/2026",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YuliiaDoroshenko/TestAutomation-GitBasics.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YuliiaDoroshenko/TestAutomation-GitBasics/issues"
+  },
+  "homepage": "https://github.com/YuliiaDoroshenko/TestAutomation-GitBasics#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.9"
+  }
+}
