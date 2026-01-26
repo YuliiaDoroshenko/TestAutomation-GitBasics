@@ -31,6 +31,7 @@ test('login in kazancasino', async ({page})=> {
 
 //2.2
 
+
 test('registration kazancasino', async({page})=>{
   await page.goto('https://kazancasino-stage.fsclub.tech/');
 
@@ -128,7 +129,7 @@ test ('Invalid email registration', async ({page})=>{
 
   const emailInput=iframe.getByTestId('email');
   const passwordInput=iframe.getByTestId('password');
-  const emailError=iframe.getByTestId('input-password-');
+  const emailError=iframe.getByTestId('input-email-error');
   
   await registerButton.click();
   await emailInput.fill('yuliia+ventureslab.io');
@@ -136,5 +137,69 @@ test ('Invalid email registration', async ({page})=>{
   
   
   await expect (emailError, "Email error not found").toBeVisible();
-
 })
+
+//2.5
+test('failed login invalid password kazancasino', async ({page})=> {
+
+  await page.goto('https://kazancasino-stage.fsclub.tech/');
+
+  const loginButton = page.locator('.user-login-button #buttonHeaderLogin');
+  const iframe = page.frameLocator('#newLoginIframe');
+
+  const userNameFieldInput = iframe.getByTestId('userName');
+  const passwordFieldInput = iframe.getByTestId('password');
+  const submitButton = iframe.getByTestId('login-submit-button');
+
+
+  await loginButton.click();
+  await userNameFieldInput.fill('yuliiad');
+  await passwordFieldInput.fill('Password');
+
+  await submitButton.click();
+
+  const invalidPasswordAlert=iframe.getByTestId('alert-icon')
+
+  await expect (invalidPasswordAlert).toBeVisible();    
+
+});
+
+//2.6
+test('failed login invalid username kazancasino', async ({page})=> {
+
+  await page.goto('https://kazancasino-stage.fsclub.tech/');
+
+  const loginButton = page.locator('.user-login-button #buttonHeaderLogin');
+  const iframe = page.frameLocator('#newLoginIframe');
+
+  const userNameFieldInput = iframe.getByTestId('userName');
+  const passwordFieldInput = iframe.getByTestId('password');
+  const submitButton = iframe.getByTestId('login-submit-button');
+
+
+  await loginButton.click();
+  await userNameFieldInput.fill('fhbufhsdujf');
+  await passwordFieldInput.fill('Password01');
+
+  await submitButton.click();
+
+  const invalidUsernameAlert=iframe.getByTestId('alert-icon')
+
+  await expect (invalidUsernameAlert).toBeVisible();    
+
+});
+
+//2.7
+test('navigate to casino kazancasino', async ({page})=> {
+   await page.goto('https://kazancasino-stage.fsclub.tech/');
+   
+   const navigationCasino=page.locator('#navCasino');
+   
+   await navigationCasino.click();
+
+   await expect (page).toHaveURL('https://kazancasino-stage.fsclub.tech/new/casino/');
+
+});
+
+
+
