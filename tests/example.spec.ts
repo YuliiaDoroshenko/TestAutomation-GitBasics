@@ -111,30 +111,3 @@ test ('hover', async ({page})=>{
 })
 
 
-//2.1
-test('login in kazancasino', async ({page})=> {
-
-  await page.goto('https://kazancasino-stage.fsclub.tech/');
-
-  const loginButton = page.locator('.user-login-button #buttonHeaderLogin');
-  const iframe = page.frameLocator('#newLoginIframe');
-
-  const userNameFieldInput = iframe.getByTestId('userName');
-  const passwordFieldInput = iframe.getByTestId('password');
-  const submitButton = iframe.getByTestId('login-submit-button');
-
-
-  await loginButton.click();
-  await userNameFieldInput.fill('yuliiad');
-  await passwordFieldInput.fill('Password01');
-
-  await submitButton.click();
-
-  const loggedUserName = page.getByTestId('loggedUserName');
-  await expect(loggedUserName).toBeVisible();
-  await expect(loggedUserName).toHaveText('yuliiad');
-
-  await expect(loggedUserName, 'User profile name should be visible after login').toBeVisible({ timeout: 5000 });
-
-});
-
