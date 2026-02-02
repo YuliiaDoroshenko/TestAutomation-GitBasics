@@ -47,7 +47,7 @@ test('failed forgot password', async ({page})=>{
   await page.getByRole('link', { name: 'Forgot Password' }).click();
   let email=page.getByRole('textbox', { name: 'E-mail' });
 
-  await email.fill('yuliia@ventureslab.io');  
+  await email.fill('yuliia@fhgtfgh.io');  
   await page.getByRole('button', { name: 'Retrieve password' }).click();
 
    let failureMessage=page.getByText('Internal Server Error');
