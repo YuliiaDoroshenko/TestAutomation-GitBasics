@@ -1,85 +1,66 @@
 import { test, expect } from '@playwright/test';
+import { LandingPage } from '../pages/LandingPage';
+import { LoginModal } from '../pages/loginModal';
+import { HomePage } from '../pages/homePage';
 
 test.describe ("Login tests KazanCasino - Regression",()=>{
 
+    let landingPage:LandingPage;
+    let loginModal:LoginModal;
+    let userHomePage:HomePage;
+   
+       
     test.beforeEach (async ({page})=>{
-        await page.goto('https://kazancasino-stage.fsclub.tech/');
-        const loginButton = page.locator('.user-login-button #buttonHeaderLogin');
-        await loginButton.click();
-
+        const landingPage=new LandingPage(page);
+        await landingPage.navigate();        
+        loginModal=await landingPage.openLogin();
+          
     });
 
 
-    test('Invalid username - failed login kazancasino @regression', async ({page})=> {
+    test("Invalid username - failed login kazancasino @regression", async ({ page }) => {
+        await loginModal.login('eruwytu','Password44!');
+        const invalidLoginMessage = await loginModal.getInvalidPasswordMessage();
 
-        const iframe = page.frameLocator('#newLoginIframe');
-        const userNameFieldInput = iframe.getByTestId('userName');
-        const passwordFieldInput = iframe.getByTestId('password');
-        const submitButton = iframe.getByTestId('login-submit-button');
-        
-        await userNameFieldInput.fill('fhbufhsdujf');
-        await passwordFieldInput.fill('Password01');
-        await submitButton.click();
-
-        const invalidPasswordMessage=iframe.locator('.text-on-surface-error')
-
-        await expect (invalidPasswordMessage).toBeVisible();      
-
+        await expect(invalidLoginMessage, "Invalid login error message is NOT visible").toBeVisible({ timeout: 5000 });
     });
 
 
-    test('Password visibility @regression', async({page})=>{
-        const loginIframe = page.frameLocator('#newLoginIframe');
-        const passwordFieldInput = loginIframe.getByTestId('password');
 
-        await passwordFieldInput.fill('Password01');
-        await expect (passwordFieldInput).toHaveAttribute('type', 'password');
+    test("Password visibility @regression", async ({ page }) => {
+        
+        await loginModal.login('eruwytu','Password44!');
+        const isPasswordMasked = await loginModal.isPasswordMasked();
 
-    })
-
-    test('Switch to registartion from login @regression', async ({page})=> {
-
-        const loginIframe = page.frameLocator('#newLoginIframe');
-        const createAccountButton=loginIframe.getByTestId('register-button')
-        await createAccountButton.click();
-         
-        const registartionIframe=page.frameLocator('#newRegistrationIframe')
-
-        await expect ((registartionIframe).getByTestId('email')).toBeVisible(); 
-
+        await expect(isPasswordMasked, "Password value is visible!").toBe(true);
     });
 
-    test('Forgot password from login @regression', async ({page})=> {
 
-        const loginIframe = page.frameLocator('#newLoginIframe');
-        const forgotPassswordButton=loginIframe.getByTestId('reset-password-button')
-        await forgotPassswordButton.click();
 
-        const forgotPasswordEmailInput=loginIframe.getByTestId('identifier-input');
-        forgotPasswordEmailInput.fill('yuliia@ventureslab.io')         
+
+    test("Switch to registration from login @regression", async ({ page }) => {
         
-        const resetPasswordSubmit=loginIframe.getByTestId('request-reset-button');
-        resetPasswordSubmit.click();
-        
-        await expect ((loginIframe).getByTestId('clear-code-button')).toBeVisible({timeout:10000});
+        const registerModal = await loginModal.goToRegistration();
 
+        await expect(registerModal, "The user is not navigated to registration modal").toBe(true);
     });
 
-    test ('Clear username field @regression', async ({page})=>{
 
-        const iframe = page.frameLocator('#newLoginIframe');
-        const userNameFieldInput = iframe.getByTestId('userName');
-        const clearUsername=iframe.locator('#userName + div')
-        const username='yuliiadorosh'
-
-        await userNameFieldInput.fill('username');
-                
-        await clearUsername.click();
-        await expect (userNameFieldInput).toHaveAttribute('value', '');
+    test("Forgot password from login @regression", async ({ page }) => {
+        await loginModal.requestPasswordReset('yuliia@ventureslab.io');
+        const isResendButtonVisible = await loginModal.isResendCodeButtonVisible();
         
+        await expect(isResendButtonVisible, "Reset code has not been sent").toBe(true);        
+          
+    });
 
 
-    })
+    test("Clear username field @regression", async ({ page }) => {
+       
+        await loginModal.clearUsernameField('yuliiaVVV');
 
+        const usernameValue = await loginModal.getUsernameValue();
+        await expect(usernameValue, "Username field should be cleared").toBe('');
+    });
 
-})
+});

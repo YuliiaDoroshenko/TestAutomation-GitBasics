@@ -1,128 +1,65 @@
 import { test, expect } from '@playwright/test';
+import { LandingPage } from '../pages/LandingPage';
+import { RegisterModal } from '../pages/registerModal';
 
-test.describe ("Regression tests KazanCasino - Regression",()=>{
+test.describe("Regression Tests - KazanCasino Registration", () => {
+    let landingPage: LandingPage;
+    let registerModal: RegisterModal;
 
     test.beforeEach (async ({page})=>{
-        await page.goto('https://kazancasino-stage.fsclub.tech/');        
-        const registerButton=page.locator('.user-login-button #buttonHeaderRegister');
-        await registerButton.click();
+        landingPage=new LandingPage(page);
+        await landingPage.navigate();        
+        registerModal=await landingPage.openRegister();            
     });
 
-
-    
-    test ('Invalid password registration @regression', async ({page})=>{
-      
-        const iframe = page.frameLocator('#newRegistrationIframe');
-
-        const emailInput=iframe.getByTestId('email');
-        const passwordInput=iframe.getByTestId('password');
-        const usernameInput=iframe.getByTestId('userName');
-            
-        await emailInput.fill('yuliia+0909@ventureslab.io');
-        await passwordInput.fill('Password01');
-        await usernameInput.click();
-
-        const passwordError=iframe.getByTestId('input-password-error');
-            
-        await expect (passwordError, "Invalid password error is missing").toBeVisible();
-
-    })
-
-    
+    test("Invalid password registration @regression", async ({ page }) => {
+        await registerModal.fillPassword("Password");
+        
+        const invalidPasswordMessage = await registerModal.getPasswordErrorMessage();
+        await expect(invalidPasswordMessage, "Invalid password error should be visible").toBeVisible();
+    });
 
     test ('Underage user registration @regression', async ({page})=>{
-      
-        const iframe = page.frameLocator('#newRegistrationIframe');
+        await registerModal.fillDateOfBirth("09", "09", "2010");
+        const underageError = await registerModal.getUnderageUserErrorMessage();
 
-        const emailInput=iframe.getByTestId('email');
-        const passwordInput=iframe.getByTestId('password');
-        const usernameInput=iframe.getByTestId('userName');
-        const firstNameInput=iframe.getByTestId('firstName');
-        const lastNameInput=iframe.getByTestId('lastName');
-        const dateOfBirthInputMM=iframe.getByTestId('dateOfBirth-MM');
-        const dateOfBirthInputDD=iframe.getByTestId('dateOfBirth-DD');
-        const dateOfBirthInputYYYY=iframe.getByTestId('dateOfBirth-YYYY');
-        
-            
-        await emailInput.fill('yuliia+0909@ventureslab.io');
-        await passwordInput.fill('Password234234!');
-        await usernameInput.fill('yuliia23');
-        await firstNameInput.fill('yuli');
-        await lastNameInput.fill('dor');
-        await dateOfBirthInputDD.fill('09');
-        await dateOfBirthInputMM.fill('11');
-        await dateOfBirthInputYYYY.fill('2010');
-
-        const dateOfBirthError=iframe.getByTestId('input-dateOfBirth-error');
-            
-        await expect (dateOfBirthError, "Underage user error is missing").toBeVisible();
-         
+        await expect(underageError, "User age check has failed").toBeVisible();
     })
 
 
-       test ('Password visibility @regression', async ({page})=>{
-      
-        const iframe = page.frameLocator('#newRegistrationIframe');
-        const passwordInput=iframe.getByTestId('password');
-        const passwordVisibilityToggle=iframe.getByTestId('password-visibility-toggle');
-        const password='Password09#';
-                     
-        await passwordInput.fill(password);
-        await passwordVisibilityToggle.click();
-        await expect (iframe.getByTestId('password')).toHaveValue(password); 
-        
-        await passwordVisibilityToggle.click();
-        
-        await expect (passwordInput).toHaveAttribute('type', 'password');
+    test ('Password visibility @regression', async ({page})=>{
+       await registerModal.fillPassword("Password123545161@@");
+       await registerModal.togglePasswordVisibility();
+       const isPasswordVisible = await registerModal.isPasswordVisible();
 
+       await expect(isPasswordVisible, "Password is still masked").toBeTruthy();   
+        
     })
 
     test ('Refferal code availability @regression', async ({page})=>{
 
-        const iframe = page.frameLocator('#newRegistrationIframe');
+        await registerModal.fillEmail('test@example.com');
+        await registerModal.fillPassword('Password123!');
+        await registerModal.fillUsername('yuliia');
+        await registerModal.fillFirstName('Test');
+        await registerModal.fillLastName('test');
+        await registerModal.fillDateOfBirth('01', '01', '1990');
+        
+        const refCodeValue = 'code123';
+        await registerModal.addReferralCode(refCodeValue);
+        const referralCodeInput = await registerModal.getReferralCodeInput();
 
-        const emailInput=iframe.getByTestId('email');
-        const passwordInput=iframe.getByTestId('password');
-        const usernameInput=iframe.getByTestId('userName');
-        const firstNameInput=iframe.getByTestId('firstName');
-        const lastNameInput=iframe.getByTestId('lastName');
-        const dateOfBirthInputMM=iframe.getByTestId('dateOfBirth-MM');
-        const dateOfBirthInputDD=iframe.getByTestId('dateOfBirth-DD');
-        const dateOfBirthInputYYYY=iframe.getByTestId('dateOfBirth-YYYY');
-
-        await emailInput.fill('yuliia+230403}@ventureslab.io');
-        await passwordInput.fill('Password01!');
-        await usernameInput.fill('yuliia0909');
-        await firstNameInput.fill('yuliia');
-        await lastNameInput.fill('dorosh');
-        await dateOfBirthInputMM.fill('09');
-        await dateOfBirthInputDD.fill('09');
-        await dateOfBirthInputYYYY.fill('1992');
-
-        const refferalCodeToggle=iframe.locator('.transition-transform');
-        const refferalCodeInput=iframe.getByTestId('affiliateToken');
-        const refferalCode='ABC123'
-
-        await refferalCodeToggle.click();
-        await refferalCodeInput.fill(refferalCode);
-
-        await expect (refferalCodeInput).toHaveValue(refferalCode);
+        await expect(referralCodeInput, "Referral code input should have value").toHaveValue(refCodeValue);
 
     })
 
-    test ('Close registartion additional pop up @regression', async ({page})=>{
+    test ('Close registration additional pop up @regression', async ({page})=>{
 
-        const iframe = page.frameLocator('#newRegistrationIframe');
-        const emailInput=iframe.getByTestId('email');
-        const closeRegistrationButton=iframe.getByTestId('registration-close-button');
+        await registerModal.fillEmail('test@sasd.dads');
+        await registerModal.closeRegistrationModal();
+        const backOnLandingPage = await landingPage.isRegisterButtonVisible();
 
-        await emailInput.fill('yuliia@abc.vv');
-        await closeRegistrationButton.click();
-
-        const exitButton= iframe.getByTestId('cancel-button');
-
-        await expect (exitButton).toBeVisible();
-
+        await expect(backOnLandingPage, 'Registration modal was not closed properly').toBeTruthy();
     })
 
 

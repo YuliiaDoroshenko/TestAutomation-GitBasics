@@ -1,74 +1,37 @@
-import {test, expect} from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { LoginModal } from "../pages/loginModal";
+import { LandingPage } from "../pages/LandingPage";
+import { HomePage } from "../pages/homePage";
 
 test.describe ("Login tests KazanCasino - Smoke",()=>{
 
-    test.beforeEach (async ({page})=>{
-        await page.goto('https://kazancasino-stage.fsclub.tech/');
-        const loginButton = page.locator('.user-login-button #buttonHeaderLogin');
-        await loginButton.click();
+    let landingPage:LandingPage;
+    let loginModal:LoginModal;
+    let userHomePage:HomePage;
 
+    test.beforeEach(async ({ page }) => {
+        landingPage = new LandingPage(page);
+        await landingPage.navigate();
+        loginModal = await landingPage.openLogin();
     });
 
     test('Successful login in kazancasino @smoke', async ({page})=> {
+    
+        await loginModal.login('yulyjj20', 'Passwytjtynj!'); 
+        userHomePage = new HomePage(page);
+        const isLoggedIn = await userHomePage.isLoggedIn();
         
-        const iframe = page.frameLocator('#newLoginIframe');
-        const userNameFieldInput = iframe.getByTestId('userName');
-        const passwordFieldInput = iframe.getByTestId('password');
-        const submitButton = iframe.getByTestId('login-submit-button');
-
-
-        await userNameFieldInput.fill('yuliia');
-        await passwordFieldInput.fill('Password');
-        await submitButton.click();
-
-        const loggedUserName = page.getByTestId('loggedUserName');
-        await expect(loggedUserName).toBeVisible();
-        await expect(loggedUserName).toHaveText('yuliia');
-
-        await expect(loggedUserName, 'User profile name should be visible after login').toBeVisible({ timeout: 5000 });
-
+        await expect(isLoggedIn, 'Login failed').toBe(true);    
+           
     });
 
 
     test('Invalid password - failed login kazancasino @smoke', async ({page})=> {
+       
+        await loginModal.login('yuliiaVVV', 'Passwyughygord01');
+        const invalidPasswordMessage = await loginModal.getInvalidPasswordMessage();
 
-        const iframe = page.frameLocator('#newLoginIframe');
-        const userNameFieldInput = iframe.getByTestId('userName');
-        const passwordFieldInput = iframe.getByTestId('password');
-        const submitButton = iframe.getByTestId('login-submit-button');
+        await expect(invalidPasswordMessage, 'Invalid password message is not visible').toBeVisible({ timeout: 5000 });
         
-        await userNameFieldInput.fill('yuliiad');
-        await passwordFieldInput.fill('Pass577656');
-        await submitButton.click();
-
-        const invalidPasswordMessage=iframe.locator('.text-on-surface-error')
-
-        await expect (invalidPasswordMessage).toBeVisible();    
-
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
