@@ -16,20 +16,22 @@ let homePage:HomePage;
     
 
     test('Successful registration kazancasino @smoke', async({page})=>{
+        let randomNum = Math.floor(Math.random() * 10000);
+
         await registerModal.registerUser(
-            "test@fgb.com",
+            `test${randomNum}@fgb.com`,
             "Password123!",
-            "testqa324",
+            `testqa${randomNum}`,
             "Test",
             "Userrrrrr",
             "01",  
             "08",
             "1990",
-            "Test St 55",
+            `Test St${randomNum}`,
             "testcity",
-            "12345",
+            `${randomNum}`,
             "AU",
-            "654765"        
+            `654765${randomNum}`        
 
         );
        

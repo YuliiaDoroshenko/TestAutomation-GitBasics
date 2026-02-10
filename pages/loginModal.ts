@@ -59,7 +59,6 @@ export class LoginModal{
 
     async goToRegistration(): Promise<RegisterModal> {
         await this.registerButton.click();
-
         return new RegisterModal(this.page);
 
     }

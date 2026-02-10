@@ -16,7 +16,6 @@ test.describe ("Login tests KazanCasino - Smoke",()=>{
     });
 
     test('Successful login in kazancasino @smoke', async ({page})=> {
-    
         await loginModal.login('yulyjj20', 'Passwytjtynj!'); 
         userHomePage = new HomePage(page);
         const isLoggedIn = await userHomePage.isLoggedIn();

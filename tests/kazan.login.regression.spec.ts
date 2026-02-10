@@ -28,7 +28,6 @@ test.describe ("Login tests KazanCasino - Regression",()=>{
 
 
     test("Password visibility @regression", async ({ page }) => {
-        
         await loginModal.login('eruwytu','Password44!');
         const isPasswordMasked = await loginModal.isPasswordMasked();
 
@@ -39,7 +38,6 @@ test.describe ("Login tests KazanCasino - Regression",()=>{
 
 
     test("Switch to registration from login @regression", async ({ page }) => {
-        
         const registerModal = await loginModal.goToRegistration();
 
         await expect(registerModal, "The user is not navigated to registration modal").toBe(true);
@@ -56,7 +54,6 @@ test.describe ("Login tests KazanCasino - Regression",()=>{
 
 
     test("Clear username field @regression", async ({ page }) => {
-       
         await loginModal.clearUsernameField('yuliiaVVV');
 
         const usernameValue = await loginModal.getUsernameValue();
